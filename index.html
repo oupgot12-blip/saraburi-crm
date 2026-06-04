@@ -824,17 +824,24 @@
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-500">ไม่มีข้อมูลรายการขาย</td></tr>'; }
                 
-                document.getElementById('salesTotalMoney').innerText = tMoney.toLocaleString();
-                document.getElementById('salesTotalTires').innerText = tTires.toLocaleString();
-                document.getElementById('salesTransferCount').innerText = tTransfers.toLocaleString();
-                document.getElementById('salesFollowupCount').innerText = tFollowups.toLocaleString();
-                document.getElementById('salesStockIn').innerText = stockIn.toLocaleString();
+                // ป้องกัน Error หากไม่มี element บนหน้าจอ
+                if(document.getElementById('salesTotalMoney')) document.getElementById('salesTotalMoney').innerText = tMoney.toLocaleString();
+                if(document.getElementById('salesTotalTires')) document.getElementById('salesTotalTires').innerText = tTires.toLocaleString();
+                if(document.getElementById('salesTransferCount')) document.getElementById('salesTransferCount').innerText = tTransfers.toLocaleString();
+                if(document.getElementById('salesFollowupCount')) document.getElementById('salesFollowupCount').innerText = tFollowups.toLocaleString();
+                if(document.getElementById('salesStockIn')) document.getElementById('salesStockIn').innerText = stockIn.toLocaleString();
+                
                 const curStock = stockIn - tTires;
                 const stockEl = document.getElementById('salesCurrentStock');
-                stockEl.innerText = curStock.toLocaleString();
-                if (curStock < 0) stockEl.classList.add('text-rose-600'); else stockEl.classList.remove('text-rose-600');
+                if(stockEl) {
+                    stockEl.innerText = curStock.toLocaleString();
+                    if (curStock < 0) stockEl.classList.add('text-rose-600'); else stockEl.classList.remove('text-rose-600');
+                }
                 
-            } catch(e) { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">❌ เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>'; }
+            } catch(e) { 
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">❌ เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>'; 
+            }
         }
 
         /* --- Add/Edit/Delete Logics --- */
