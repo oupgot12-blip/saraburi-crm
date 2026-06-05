@@ -738,16 +738,21 @@
         // ฟังก์ชันช่วยเหลือสำหรับแปลงลิงก์ Google Drive ให้แสดงเป็นรูปภาพได้
         function getDirectImageUrl(url) {
             if (!url) return null;
+            let fileId = null;
+            
             // รูปแบบที่ 1: https://drive.google.com/file/d/FILE_ID/view
             const driveMatch = url.match(/\/d\/(.+?)\//);
-            if (driveMatch && driveMatch[1]) {
-                return `https://drive.google.com/uc?id=${driveMatch[1]}`;
-            }
+            if (driveMatch && driveMatch[1]) fileId = driveMatch[1];
+            
             // รูปแบบที่ 2: https://drive.google.com/open?id=FILE_ID
             const openMatch = url.match(/id=(.+?)(&|$)/);
-            if (openMatch && openMatch[1]) {
-                return `https://drive.google.com/uc?id=${openMatch[1]}`;
+            if (openMatch && openMatch[1]) fileId = openMatch[1];
+            
+            // 🟢 แก้ไขตรงนี้: ใช้เซิร์ฟเวอร์ lh3 ของ Google เพื่อแก้ปัญหาการถูกบล็อกรูปภาพ (Error 403)
+            if (fileId) {
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
+            
             // ถ้ารูปแบบเป็นเว็บปกติ (http) ให้ส่งคืนค่าเดิม
             if (url.startsWith('http')) return url;
             
