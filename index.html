@@ -392,10 +392,13 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide"><i class="fa-solid fa-camera text-brand-500 mr-1"></i> รูปลูกค้า (อัปโหลด)</label>
-                    <input type="file" id="memberImageFile" accept="image/*" class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-400 file:text-slate-900 hover:file:bg-brand-500 transition-all cursor-pointer border border-slate-200 rounded-xl bg-slate-50/50">
-                    <p class="text-[10px] text-slate-400 mt-1.5" id="memberImageStatus">เลือกรูปภาพเพื่อให้จดจำลูกค้าได้ง่ายขึ้น</p>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-camera text-brand-500 mr-1"></i> รูปลูกค้า (ถ่ายรูป/อัปโหลด)</label>
+                    <input type="file" id="memberImageFile" accept="image/*" onchange="previewSelectedImage(this, 'previewMemberImg')" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
+                    <div class="mt-3 flex items-center">
+                        <img id="previewMemberImg" src="" class="hidden w-16 h-16 object-cover rounded-xl border-2 border-white shadow-md mr-3">
+                        <p class="text-[10px] text-slate-400" id="memberImageStatus">เลือกรูปภาพจากเครื่องมือถือหรือคอมพิวเตอร์</p>
+                    </div>
                 </div>
                 
                 <button type="button" onclick="submitNewMember()" id="submitMemberBtn" class="w-full py-4 mt-6 bg-slate-900 hover:bg-slate-800 text-brand-400 rounded-xl font-extrabold text-lg shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 transition-all flex items-center justify-center">
@@ -421,7 +424,6 @@
                     <div class="md:col-span-1">
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">รหัสสมาชิก</label>
                         <input type="text" id="saleMemberId" list="memberList" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required autocomplete="off">
-                        <!-- Datalist สำหรับเลือกชื่อลูกค้า -->
                         <datalist id="memberList"></datalist>
                     </div>
                     <div class="md:col-span-1">
@@ -446,28 +448,44 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-image text-brand-500 mr-1"></i> รูปสลิป</label>
-                        <input type="file" id="saleSlipFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
-                        <p class="text-[10px] text-slate-400 mt-1.5" id="slipUrlStatus">เลือกรูปภาพเพื่ออัปโหลด</p>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-image text-brand-500 mr-1"></i> รูปสลิป</label>
+                            <input type="file" id="saleSlipFile" accept="image/*" onchange="previewSelectedImage(this, 'previewSlipImg')" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
+                        </div>
+                        <div class="mt-3 flex items-center">
+                            <img id="previewSlipImg" src="" class="hidden w-12 h-12 object-cover rounded-lg border border-white shadow-sm mr-2">
+                            <p class="text-[10px] text-slate-400" id="slipUrlStatus">เลือกภาพจากมือถือหรือคอม</p>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-truck-fast text-slate-700 mr-1"></i> รูปส่งยาง</label>
-                        <input type="file" id="saleDeliveryFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
-                        <p class="text-[10px] text-slate-400 mt-1.5" id="deliveryUrlStatus">เลือกรูปภาพเพื่ออัปโหลด</p>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-truck-fast text-slate-700 mr-1"></i> รูปส่งยาง</label>
+                            <input type="file" id="saleDeliveryFile" accept="image/*" onchange="previewSelectedImage(this, 'previewDeliveryImg')" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
+                        </div>
+                        <div class="mt-3 flex items-center">
+                            <img id="previewDeliveryImg" src="" class="hidden w-12 h-12 object-cover rounded-lg border border-white shadow-sm mr-2">
+                            <p class="text-[10px] text-slate-400" id="deliveryUrlStatus">เลือกภาพจากมือถือหรือคอม</p>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 mb-2">โค้ดยาง 1</label>
-                        <input type="file" id="saleCode1File" accept="image/*" class="w-full mb-3 text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
-                        <input type="text" id="saleCode1Text" placeholder="ระบุเลขโค้ด 1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold">
+                        <input type="file" id="saleCode1File" accept="image/*" onchange="previewSelectedImage(this, 'previewCode1Img')" class="w-full mb-3 text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
+                        <div class="flex gap-2">
+                            <img id="previewCode1Img" src="" class="hidden w-10 h-10 object-cover rounded-lg border border-white shadow-sm">
+                            <input type="text" id="saleCode1Text" placeholder="ระบุเลขโค้ด 1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold">
+                        </div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 mb-2">โค้ดยาง 2</label>
-                        <input type="file" id="saleCode2File" accept="image/*" class="w-full mb-3 text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
-                        <input type="text" id="saleCode2Text" placeholder="ระบุเลขโค้ด 2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold">
+                        <input type="file" id="saleCode2File" accept="image/*" onchange="previewSelectedImage(this, 'previewCode2Img')" class="w-full mb-3 text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-white file:text-slate-700 hover:file:bg-brand-100 transition-all cursor-pointer border border-slate-200 rounded-lg">
+                        <div class="flex gap-2">
+                            <img id="previewCode2Img" src="" class="hidden w-10 h-10 object-cover rounded-lg border border-white shadow-sm">
+                            <input type="text" id="saleCode2Text" placeholder="ระบุเลขโค้ด 2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold">
+                        </div>
                     </div>
                 </div>
                 
@@ -685,7 +703,30 @@
             }
         }
 
+        /* --- ฟังก์ชันแสดงรูปภาพตัวอย่างตอนอัปโหลด (Image Preview) --- */
+        function previewSelectedImage(inputElem, previewId) {
+            const previewImg = document.getElementById(previewId);
+            if (inputElem.files && inputElem.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                }
+                reader.readAsDataURL(inputElem.files[0]);
+            } else {
+                previewImg.src = "";
+                previewImg.classList.add('hidden');
+            }
+        }
+
         /* --- Modal Logic --- */
+        function resetAllPreviews() {
+            ['previewMemberImg', 'previewSlipImg', 'previewDeliveryImg', 'previewCode1Img', 'previewCode2Img'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.src = ""; el.classList.add('hidden'); }
+            });
+        }
+
         function openCurrentModal() {
             if (currentView === 'crm') openAddModal();
             else if (currentView === 'sales') openSalesModal();
@@ -698,7 +739,8 @@
             document.getElementById('memberModalTitleText').innerHTML = `<i class="fa-solid fa-user-plus text-brand-500 mr-3"></i>เพิ่มข้อมูลลูกค้าใหม่`;
             document.getElementById('submitMemberBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกลงตาราง`;
             document.getElementById('addMemberForm').reset();
-            document.getElementById('memberImageStatus').innerText = "เลือกรูปภาพเพื่อให้จดจำลูกค้าได้ง่ายขึ้น";
+            document.getElementById('memberImageStatus').innerText = "เลือกรูปภาพจากเครื่องมือถือหรือคอมพิวเตอร์";
+            resetAllPreviews();
             
             document.getElementById('memberId').value = "ID" + String(maxMemberIdNum + 1).padStart(3, '0');
             modal.classList.remove('hidden');
@@ -707,7 +749,7 @@
         function closeAddModal() {
             const modal = document.getElementById('addMemberModal');
             modal.classList.add('opacity-0'); modal.querySelector('.glass-card').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); resetAllPreviews(); }, 300);
         }
 
         function openSalesModal(isEdit = false) {
@@ -718,8 +760,9 @@
                 document.getElementById('editRowIndex').value = "";
                 document.getElementById('addSalesForm').reset();
                 document.getElementById('salePrice').value = "3900"; 
-                document.getElementById('slipUrlStatus').innerText = "เลือกรูปภาพเพื่ออัปโหลด";
-                document.getElementById('deliveryUrlStatus').innerText = "เลือกรูปภาพเพื่ออัปโหลด";
+                document.getElementById('slipUrlStatus').innerText = "เลือกภาพจากมือถือหรือคอม";
+                document.getElementById('deliveryUrlStatus').innerText = "เลือกภาพจากมือถือหรือคอม";
+                resetAllPreviews();
 
                 const today = new Date();
                 document.getElementById('saleDate').value = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().substr(-2)}`;
@@ -731,7 +774,7 @@
         function closeSalesModal() {
             const modal = document.getElementById('addSalesModal');
             modal.classList.add('opacity-0'); modal.querySelector('.glass-card').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); document.getElementById('addSalesForm').reset(); }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); document.getElementById('addSalesForm').reset(); resetAllPreviews(); }, 300);
         }
         function openStockInModal() {
             const modal = document.getElementById('stockInModal');
@@ -753,7 +796,7 @@
 
         /* --- Data Fetching Logic --- */
         
-        // ฟังก์ชันช่วยเหลือสำหรับแปลงลิงก์ Google Drive ให้แสดงเป็นรูปภาพได้ (เพื่อกัน Error 403)
+        // 🟢 ฟังก์ชันช่วยเหลือสำหรับแปลงลิงก์ Google Drive ให้แสดงเป็นรูปภาพได้ (เพื่อกัน Error 403)
         function getDirectImageUrl(url) {
             if (!url) return null;
             let fileId = null;
@@ -843,21 +886,26 @@
                         
                         const rowDataStr = encodeURIComponent(JSON.stringify(m));
                         
-                        // 🟢 ส่วนประมวลผลรูปภาพ (ใช้ฟังก์ชันเพื่อเลี่ยง Error)
+                        // 🟢 ส่วนประมวลผลรูปภาพ
                         const directImgUrl = getDirectImageUrl(m.contactPath);
                         const fallbackIcon = `<div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 text-lg shadow-inner"><i class="fa-solid fa-user"></i></div>`;
                         
-                        // หากมีรูป จะพยายามโหลด ถ้ารูปเสีย/โหลดไม่ได้ จะใช้รูปเงาสีเทาแทน
                         const avatarHtml = directImgUrl 
                             ? `<img src="${directImgUrl}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" onerror="this.onerror=null; this.outerHTML='${fallbackIcon.replace(/'/g, "\\'")}';">` 
                             : fallbackIcon;
+
+                        // 🟢 ส่วนประมวลผลเบอร์โทรศัพท์ (เติม 0 ด้านหน้าถ้า Google Sheets ตัดทิ้ง)
+                        let phoneStr = m.phone ? String(m.phone).trim() : '-';
+                        if (phoneStr.length === 9 && !phoneStr.startsWith('0') && /^\d+$/.test(phoneStr)) {
+                            phoneStr = '0' + phoneStr;
+                        }
 
                         tbody.innerHTML += `
                             <tr class="hover:bg-white/50 transition-colors border-b border-slate-200/50 last:border-0">
                                 <td class="px-4 py-4">${avatarHtml}</td>
                                 <td class="px-4 py-4 font-bold text-slate-900">${m.id || '-'}</td>
                                 <td class="px-4 py-4 font-bold text-slate-800">${m.name || '-'}</td>
-                                <td class="px-4 py-4 text-slate-600">${m.phone || '-'}</td>
+                                <td class="px-4 py-4 text-slate-600">${phoneStr}</td>
                                 <td class="px-4 py-4"><span class="${sBadge} px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wider uppercase shadow-sm">${m.source || '-'}</span></td>
                                 <td class="px-4 py-4 text-center">
                                     <button onclick="openEditMemberModal('${rowDataStr}')" class="text-slate-400 hover:text-brand-500 mx-2 transition-colors"><i class="fa-solid fa-pen"></i></button>
@@ -962,10 +1010,27 @@
             
             document.getElementById('memberId').value = data.id; 
             document.getElementById('memberName').value = data.name;
-            document.getElementById('memberPhone').value = data.phone; 
+            
+            // 🟢 จัดการเติม 0 ในหน้าต่างแก้ไขเบอร์โทรศัพท์
+            let phoneStr = data.phone ? String(data.phone).trim() : '';
+            if (phoneStr.length === 9 && !phoneStr.startsWith('0') && /^\d+$/.test(phoneStr)) {
+                phoneStr = '0' + phoneStr;
+            }
+            document.getElementById('memberPhone').value = phoneStr; 
+            
             document.getElementById('memberSource').value = data.source || 'ออนไลน์';
             
-            document.getElementById('memberImageStatus').innerText = (data.contactPath && data.contactPath.startsWith('http')) ? "มีรูปภาพเดิมอยู่แล้ว (เลือกใหม่เพื่อเปลี่ยนรูป)" : "เลือกรูปภาพเพื่อให้จดจำลูกค้าได้ง่ายขึ้น";
+            // โชว์รูปเก่าเป็นภาพตัวอย่าง (ถ้ามี)
+            const previewImg = document.getElementById('previewMemberImg');
+            if (data.contactPath) {
+                previewImg.src = getDirectImageUrl(data.contactPath) || data.contactPath;
+                previewImg.classList.remove('hidden');
+                document.getElementById('memberImageStatus').innerText = "มีรูปภาพเดิมอยู่แล้ว (เลือกใหม่เพื่อเปลี่ยนรูป)";
+            } else {
+                previewImg.src = "";
+                previewImg.classList.add('hidden');
+                document.getElementById('memberImageStatus').innerText = "เลือกรูปภาพจากเครื่องมือถือหรือคอมพิวเตอร์";
+            }
             
             document.getElementById('memberModalTitleText').innerHTML = `<i class="fa-solid fa-pen text-brand-500 mr-3"></i>แก้ไขข้อมูลลูกค้า`;
             document.getElementById('submitMemberBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกการแก้ไข`;
@@ -1066,15 +1131,35 @@
             document.getElementById('editRowIndex').value = data.row;
             document.getElementById('oldSlipUrl').value = data.slip; document.getElementById('oldDeliveryUrl').value = data.delivery;
             document.getElementById('oldCode1PicUrl').value = data.code1Pic; document.getElementById('oldCode2PicUrl').value = data.code2Pic;
+            
             document.getElementById('salesModalTitleText').innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-500 mr-3"></i>แก้ไขรายการขาย`;
             document.getElementById('submitSalesBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกการแก้ไข`;
+            
             document.getElementById('saleMemberId').value = data.memberId; document.getElementById('saleQty').value = data.qty;
             document.getElementById('salePrice').value = data.price; document.getElementById('saleTotal').value = data.total;
             document.getElementById('saleDate').value = data.saleDate; document.getElementById('saleClaimDate').value = data.claimDate;
             document.getElementById('saleFollowupDate').value = data.followup; document.getElementById('salePayment').value = data.payment;
             document.getElementById('saleCode1Text').value = data.code1Text; document.getElementById('saleCode2Text').value = data.code2Text;
-            document.getElementById('slipUrlStatus').innerText = data.slip ? "มีรูปเดิมอยู่แล้ว" : "เลือกรูปภาพเพื่ออัปโหลด";
-            document.getElementById('deliveryUrlStatus').innerText = data.delivery ? "มีรูปเดิมอยู่แล้ว" : "เลือกรูปภาพเพื่ออัปโหลด";
+            
+            // โชว์ภาพเก่า (ถ้ามี) ใน Modal ขาย
+            const setupPreview = (url, imgId, statusId) => {
+                const img = document.getElementById(imgId);
+                const status = document.getElementById(statusId);
+                if(url) {
+                    img.src = getDirectImageUrl(url) || url;
+                    img.classList.remove('hidden');
+                    if(status) status.innerText = "มีรูปเดิมอยู่แล้ว (เลือกใหม่เพื่อเปลี่ยน)";
+                } else {
+                    img.src = "";
+                    img.classList.add('hidden');
+                    if(status) status.innerText = "เลือกภาพจากมือถือหรือคอม";
+                }
+            };
+            setupPreview(data.slip, 'previewSlipImg', 'slipUrlStatus');
+            setupPreview(data.delivery, 'previewDeliveryImg', 'deliveryUrlStatus');
+            setupPreview(data.code1Pic, 'previewCode1Img', null);
+            setupPreview(data.code2Pic, 'previewCode2Img', null);
+
             openSalesModal(true);
         }
 
