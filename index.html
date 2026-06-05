@@ -733,26 +733,27 @@
             modal.classList.add('opacity-0'); modal.querySelector('.glass-card').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); document.getElementById('addSalesForm').reset(); }, 300);
         }
-
-        function openStockInModal() {
-            const modal = document.getElementById('stockInModal');
-            document.getElementById('stockInModalMonthText').innerText = `(${currentSalesMonth})`;
-            const today = new Date();
-            document.getElementById('stockInDate').value = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().substr(-2)}`;
-            document.getElementById('stockInQty').value = ''; document.getElementById('stockInNote').value = '';
-            document.getElementById('stockInFormMsg').classList.add('hidden');
+        /* --- Data Fetching Logic --- */
+        
+        // ฟังก์ชันช่วยเหลือสำหรับแปลงลิงก์ Google Drive ให้แสดงเป็นรูปภาพได้
+        function getDirectImageUrl(url) {
+            if (!url) return null;
+            // รูปแบบที่ 1: https://drive.google.com/file/d/FILE_ID/view
+            const driveMatch = url.match(/\/d\/(.+?)\//);
+            if (driveMatch && driveMatch[1]) {
+                return `https://drive.google.com/uc?id=${driveMatch[1]}`;
+            }
+            // รูปแบบที่ 2: https://drive.google.com/open?id=FILE_ID
+            const openMatch = url.match(/id=(.+?)(&|$)/);
+            if (openMatch && openMatch[1]) {
+                return `https://drive.google.com/uc?id=${openMatch[1]}`;
+            }
+            // ถ้ารูปแบบเป็นเว็บปกติ (http) ให้ส่งคืนค่าเดิม
+            if (url.startsWith('http')) return url;
             
-            renderStockInLog();
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.glass-card').classList.remove('scale-95'); }, 10);
-        }
-        function closeStockInModal() {
-            const modal = document.getElementById('stockInModal');
-            modal.classList.add('opacity-0'); modal.querySelector('.glass-card').classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
+            return null;
         }
 
-        /* --- Fetch Data --- */
         async function fetchOverviewData() {
             if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbyY5_yKAfnVLOd1pTI_9GfWo5pe6As27aLWz_p9Mj0mS3aEt96bnweS1Or0EmvGDeCwmQ/exec")) return;
             try {
@@ -792,7 +793,7 @@
         async function fetchMembersData() {
             const tbody = document.getElementById('customerTableBody');
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-500 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin text-brand-400 text-3xl mb-3 block"></i>กำลังโหลดข้อมูล...</td></tr>';
-            if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("YOUR_WEB_APP")) {
+            if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbyY5_yKAfnVLOd1pTI_9GfWo5pe6As27aLWz_p9Mj0mS3aEt96bnweS1Or0EmvGDeCwmQ/exec")) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-rose-500 font-bold">⚠️ กรุณาตั้งค่า Web App URL</td></tr>'; return;
             }
             try {
@@ -819,9 +820,13 @@
                         
                         const rowDataStr = encodeURIComponent(JSON.stringify(m));
                         
-                        const avatarHtml = m.contactPath && m.contactPath.startsWith('http') 
-                            ? `<img src="${m.contactPath}" class="w-10 h-10 rounded-full object-cover border-2 border-brand-200 shadow-sm">` 
-                            : `<div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 text-lg"><i class="fa-solid fa-user"></i></div>`;
+                        // ประมวลผลรูปภาพ
+                        const directImgUrl = getDirectImageUrl(m.contactPath);
+                        const fallbackIcon = `<div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 text-lg shadow-inner"><i class="fa-solid fa-user"></i></div>`;
+                        
+                        const avatarHtml = directImgUrl 
+                            ? `<img src="${directImgUrl}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" onerror="this.onerror=null; this.outerHTML='${fallbackIcon.replace(/'/g, "\\'")}';">` 
+                            : fallbackIcon;
 
                         tbody.innerHTML += `
                             <tr class="hover:bg-white/50 transition-colors border-b border-slate-200/50 last:border-0">
