@@ -25,7 +25,7 @@
                         sans: ['Sarabun', 'Inter', 'sans-serif'],
                     },
                     colors: {
-                        // เปลี่ยนสี Brand เป็นโทนเหลือง B-Quik (Yellow/Amber)
+                        // โทนเหลือง B-Quik (Yellow/Amber)
                         brand: {
                             50: '#fefce8', 100: '#fef9c3', 200: '#fef08a',
                             300: '#fde047', 400: '#facc15', 500: '#eab308', 
@@ -59,7 +59,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px 0 rgba(30, 41, 59, 0.08); /* Shadow เปลี่ยนเป็นโทน Slate */
+            box-shadow: 0 8px 32px 0 rgba(30, 41, 59, 0.08); 
             transition: all 0.3s ease;
         }
         .glass-card:hover {
@@ -87,7 +87,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-hidden selection:bg-brand-400 selection:text-slate-900 relative">
 
-    <!-- Animated Background Effect (Yellow & Gray tones) -->
+    <!-- Animated Background Effect -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="absolute top-0 -left-4 w-96 h-96 bg-brand-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div class="absolute top-0 -right-4 w-96 h-96 bg-slate-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
@@ -404,7 +404,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-100/50 p-5 rounded-2xl border border-slate-200">
                     <div class="md:col-span-1">
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">รหัสสมาชิก</label>
-                        <input type="text" id="saleMemberId" list="memberList" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required>
+                        <input type="text" id="saleMemberId" list="memberList" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required autocomplete="off">
+                        <!-- Datalist สำหรับเลือกชื่อลูกค้า -->
                         <datalist id="memberList"></datalist>
                     </div>
                     <div class="md:col-span-1">
@@ -569,6 +570,7 @@
                 });
             }
             
+            // ดึงรายชื่อลูกค้ามารอไว้ตั้งแต่โหลดเว็บ
             fetchMembersForDropdown();
         });
 
@@ -638,7 +640,6 @@
             }
         }
 
-        /* --- STREAMING_CHUNK:Fetching Data & Logic... --- */
         /* --- Modal Logic --- */
         function openCurrentModal() {
             if (currentView === 'crm') openAddModal();
@@ -824,7 +825,6 @@
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-500">ไม่มีข้อมูลรายการขาย</td></tr>'; }
                 
-                // ป้องกัน Error หากไม่มี element บนหน้าจอ
                 if(document.getElementById('salesTotalMoney')) document.getElementById('salesTotalMoney').innerText = tMoney.toLocaleString();
                 if(document.getElementById('salesTotalTires')) document.getElementById('salesTotalTires').innerText = tTires.toLocaleString();
                 if(document.getElementById('salesTransferCount')) document.getElementById('salesTransferCount').innerText = tTransfers.toLocaleString();
@@ -844,16 +844,25 @@
             }
         }
 
-        /* --- Add/Edit/Delete Logics --- */
+        /* --- ดึงข้อมูลและสร้าง Datalist --- */
         async function fetchMembersForDropdown() {
             if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("YOUR_WEB_APP")) return;
             try {
-                const res = await fetch(GOOGLE_APPS_SCRIPT_URL); const members = await res.json();
+                const res = await fetch(GOOGLE_APPS_SCRIPT_URL); 
+                const members = await res.json();
                 const dataList = document.getElementById('memberList');
                 if(dataList && Array.isArray(members)) {
-                    dataList.innerHTML = ''; members.forEach(m => { const opt = document.createElement('option'); option.value = `${m.id} - ${m.name}`; dataList.appendChild(option); });
+                    dataList.innerHTML = ''; 
+                    members.forEach(m => { 
+                        // แก้ไข: ใช้ opt.value แทน option.value
+                        const opt = document.createElement('option'); 
+                        opt.value = `${m.id} - ${m.name}`; 
+                        dataList.appendChild(opt); 
+                    });
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error("Error fetching members for dropdown:", e);
+            }
         }
 
         function openEditMemberModal(rowDataStr) {
@@ -876,6 +885,7 @@
             try {
                 await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
                 statusMsg.innerHTML = 'บันทึกสำเร็จ!'; statusMsg.className = "pb-4 px-6 text-sm text-brand-500 font-bold block";
+                fetchMembersForDropdown(); // โหลดรายชื่อใหม่เข้า Datalist ทันที
                 setTimeout(() => { closeAddModal(); fetchMembersData(); }, 1500);
             } catch (e) { statusMsg.innerHTML = 'เกิดข้อผิดพลาด'; statusMsg.className = "pb-4 px-6 text-sm text-rose-500 font-bold block"; btn.disabled = false; }
         }
@@ -884,7 +894,7 @@
             if(!confirm("ต้องการลบลูกค้านี้?")) return;
             document.getElementById('customerTableBody').innerHTML = '<tr><td colspan="5" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-rose-500 text-2xl"></i></td></tr>';
             await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action: "deleteMember", row: row}) });
-            setTimeout(() => fetchMembersData(), 1500);
+            setTimeout(() => { fetchMembersData(); fetchMembersForDropdown(); }, 1500);
         }
 
         function calculateTotal() {
@@ -928,8 +938,8 @@
             document.getElementById('saleDate').value = data.saleDate; document.getElementById('saleClaimDate').value = data.claimDate;
             document.getElementById('saleFollowupDate').value = data.followup; document.getElementById('salePayment').value = data.payment;
             document.getElementById('saleCode1Text').value = data.code1Text; document.getElementById('saleCode2Text').value = data.code2Text;
-            document.getElementById('slipUrlStatus').innerText = data.slip ? "มีรูปเดิมอยู่แล้ว" : "";
-            document.getElementById('deliveryUrlStatus').innerText = data.delivery ? "มีรูปเดิมอยู่แล้ว" : "";
+            document.getElementById('slipUrlStatus').innerText = data.slip ? "มีรูปเดิมอยู่แล้ว" : "เลือกรูปภาพเพื่ออัปโหลด";
+            document.getElementById('deliveryUrlStatus').innerText = data.delivery ? "มีรูปเดิมอยู่แล้ว" : "เลือกรูปภาพเพื่ออัปโหลด";
             openSalesModal(true);
         }
 
