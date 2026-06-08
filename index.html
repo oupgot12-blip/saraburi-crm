@@ -183,9 +183,6 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto px-4 py-8 sm:px-8 relative">
-            </header>
-
             <div class="flex-1 overflow-y-auto px-4 pb-8 sm:px-8 relative">
                 
                 <!-- ================= OVERVIEW VIEW ================= -->
@@ -338,32 +335,10 @@
                                     </tr>
                                 </thead>
                                 <tbody class="text-sm divide-y divide-slate-200/50 font-medium text-slate-700" id="salesTableBody">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-5 bg-slate-100/50 p-5 rounded-2xl border border-slate-200">
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">รหัสสมาชิก</label>
-                        <input type="text" id="saleMemberId" list="memberList" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required autocomplete="off">
-                        <datalist id="memberList"></datalist>
-                    </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">จำนวน (เส้น)</label>
-                        <input type="number" id="saleQty" oninput="calculateTotal()" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required>
-                    </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">ราคา/เส้น</label>
-                        <input type="number" id="salePrice" value="3900" oninput="calculateTotal()" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold" required>
-                    </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">รวมเป็นเงิน (฿)</label>
-                        <input type="number" id="saleTotal" class="w-full px-4 py-3.5 bg-brand-100 border border-brand-200 text-slate-900 font-black rounded-xl outline-none" readonly>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">วันที่ขาย</label><input type="text" id="saleDate" oninput="updateAutoDates()" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-400 outline-none text-sm"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">วันครบเครม</label><input type="text" id="saleClaimDate" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-400 outline-none text-sm"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">วันที่ต้องทักซ้ำ</label><input type="text" id="saleFollowupDate" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-400 outline-none text-sm"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">ชำระ</label><select id="salePayment" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-400 outline-none text-sm font-semibold"><option value="โอน">โอน</option><option value="เงินสด">เงินสด</option></select></div>
-                </div>
+                                    <!-- Dynamic Content -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div> <!-- End Sales View -->
 
