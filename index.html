@@ -530,23 +530,44 @@
         </div>
     </div>
 
+    <!-- 🟢 Action PIN Modal (สำหรับยืนยันการเพิ่ม/แก้ไข/ลบ) -->
+    <div id="actionPinModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-8 text-center relative border-t-4 border-t-rose-500 animate-fade-in-up">
+            <button onclick="cancelActionPin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 text-3xl mx-auto mb-4 shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="text-xl font-extrabold text-slate-900 mb-2">ยืนยันสิทธิ์การทำรายการ</h2>
+            <p class="text-slate-500 text-sm mb-6">กรุณากรอกรหัส PIN 4 หลัก เพื่อยืนยันการบันทึกหรือแก้ไขข้อมูล</p>
+            
+            <input type="password" id="actionPinInput" onkeypress="if(event.key === 'Enter') confirmActionPin()" placeholder="••••" class="w-full text-center text-3xl tracking-[0.5em] px-4 py-3 bg-slate-100 border-2 border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-rose-400/30 focus:border-rose-400 outline-none transition-all font-mono shadow-inner text-slate-800 mb-2" autocomplete="off">
+            <p id="actionPinErrorMsg" class="text-rose-500 text-xs font-bold hidden mb-4 animate-bounce">⚠️ รหัส PIN ไม่ถูกต้อง!</p>
+            
+            <button onclick="confirmActionPin()" class="w-full py-3 mt-2 bg-slate-900 hover:bg-slate-800 text-rose-400 rounded-xl font-extrabold text-lg shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 transition-all">
+                ยืนยันทำรายการ
+            </button>
+        </div>
+    </div>
+
     <script>
         // ⚠️ สำคัญ: นำ Web App URL ของคุณมาวางตรงนี้ ⚠️
         const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJUN6rs2vjBcI1c_j9FUMM0MKPbueIXngCUqZ8kz9WgyosXpzjmHDHl4FLznQcAc4M/exec"; 
         const APP_PIN = "8899"; // รหัสผ่านเข้าเว็บ
+        const ACTION_PIN = "2233"; // 🟢 รหัสผ่านสำหรับเพิ่ม/แก้ไข/ลบข้อมูล
 
         let currentView = 'overview';
         let currentSalesMonth = '';
         let currentStockInLog = [];
         let maxMemberIdNum = 0;
-        let globalMembersList = []; // 🟢 เพิ่มตัวแปรสำหรับเก็บรายชื่อลูกค้ามาเทียบในตารางขาย
+        let globalMembersList = []; // เพิ่มตัวแปรสำหรับเก็บรายชื่อลูกค้ามาเทียบในตารางขาย
         let revChartObj = null;
         let stockChartObj = null;
+        let actionPinResolve = null; // 🟢 ตัวแปรสำหรับรอดักการตอบกลับของ Action PIN
 
         Chart.defaults.font.family = "'Sarabun', 'Inter', sans-serif";
         Chart.defaults.color = '#64748b'; // Text color for charts
 
-        /* --- Login System --- */
+        /* --- Login & Security System --- */
         function loginApp() {
             const pin = document.getElementById('pinInput').value;
             const err = document.getElementById('loginErrorMsg');
@@ -558,6 +579,35 @@
                 document.getElementById('pinInput').value = '';
                 document.getElementById('pinInput').focus();
             }
+        }
+
+        // 🟢 ฟังก์ชันเรียกใช้ Modal ขอรหัส Action PIN
+        function verifyActionPin() {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('actionPinModal');
+                modal.classList.remove('hidden');
+                document.getElementById('actionPinInput').value = '';
+                document.getElementById('actionPinErrorMsg').classList.add('hidden');
+                setTimeout(() => document.getElementById('actionPinInput').focus(), 100);
+                actionPinResolve = resolve;
+            });
+        }
+
+        function confirmActionPin() {
+            const pin = document.getElementById('actionPinInput').value;
+            if (pin === ACTION_PIN) {
+                document.getElementById('actionPinModal').classList.add('hidden');
+                if (actionPinResolve) actionPinResolve(true);
+            } else {
+                document.getElementById('actionPinErrorMsg').classList.remove('hidden');
+                document.getElementById('actionPinInput').value = '';
+                document.getElementById('actionPinInput').focus();
+            }
+        }
+
+        function cancelActionPin() {
+            document.getElementById('actionPinModal').classList.add('hidden');
+            if (actionPinResolve) actionPinResolve(false);
         }
 
         function handlePinEnter(e) { if (e.key === 'Enter') loginApp(); }
@@ -1148,14 +1198,19 @@
         async function submitNewMember() {
             if(!GOOGLE_APPS_SCRIPT_URL.startsWith("https://script.google.com")) { alert("ใส่ Web App URL ก่อนครับ"); return; }
             
-            const btn = document.getElementById('submitMemberBtn'); 
-            const statusMsg = document.getElementById('formStatusMsg');
             const editRow = document.getElementById('editMemberRowIndex').value;
             
             if(!document.getElementById('memberId').value || !document.getElementById('memberName').value) { 
                 alert("กรุณากรอกรหัสและชื่อลูกค้า"); 
                 return; 
             }
+
+            // 🟢 ยืนยันรหัส PIN ก่อนแก้ไขหรือเพิ่มลูกค้า
+            const isAuthorized = await verifyActionPin();
+            if (!isAuthorized) return;
+            
+            const btn = document.getElementById('submitMemberBtn'); 
+            const statusMsg = document.getElementById('formStatusMsg');
             
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> กำลังอัปโหลดและบันทึก...'; 
             btn.disabled = true; 
@@ -1198,6 +1253,11 @@
 
         async function deleteMember(row) {
             if(!confirm("ลบลูกค้าคนนี้หรือไม่?")) return;
+
+            // 🟢 ยืนยันรหัส PIN ก่อนลบลูกค้า
+            const isAuthorized = await verifyActionPin();
+            if (!isAuthorized) return;
+
             const tbody = document.getElementById('customerTableBody');
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-rose-500 text-2xl"></i></td></tr>';
             try {
@@ -1272,11 +1332,16 @@
 
         async function submitNewSales() {
             if(!GOOGLE_APPS_SCRIPT_URL.startsWith("https://script.google.com")) return;
-            const btn = document.getElementById('submitSalesBtn'); const statusMsg = document.getElementById('salesFormStatusMsg');
+            
             const memberIdOnly = document.getElementById('saleMemberId').value.split(' - ')[0];
             const editRow = document.getElementById('editRowIndex').value;
             if(!memberIdOnly || !document.getElementById('saleQty').value) return;
 
+            // 🟢 ยืนยันรหัส PIN ก่อนเพิ่มหรือแก้ไขรายการขาย
+            const isAuthorized = await verifyActionPin();
+            if (!isAuthorized) return;
+
+            const btn = document.getElementById('submitSalesBtn'); const statusMsg = document.getElementById('salesFormStatusMsg');
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> กำลังอัปโหลด...'; btn.disabled = true; statusMsg.classList.add('hidden');
             try {
                 const s64 = await fileToBase64(document.getElementById('saleSlipFile').files[0]);
@@ -1303,6 +1368,11 @@
 
         async function deleteSale(month, row) {
             if(!confirm("ลบรายการขายนี้?")) return;
+
+            // 🟢 ยืนยันรหัส PIN ก่อนลบรายการขาย
+            const isAuthorized = await verifyActionPin();
+            if (!isAuthorized) return;
+
             document.getElementById('salesTableBody').innerHTML = '<tr><td colspan="10" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-rose-500 text-2xl"></i></td></tr>';
             await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action: "deleteSale", month: month, row: row}) });
             setTimeout(() => fetchSalesData(month), 1500);
@@ -1321,8 +1391,15 @@
         }
 
         async function submitStockIn() {
-            const btn = document.getElementById('submitStockInBtn'); const qty = document.getElementById('stockInQty').value;
-            if (!qty) return; btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            const qty = document.getElementById('stockInQty').value;
+            if (!qty) return; 
+
+            // 🟢 ยืนยันรหัส PIN ก่อนเพิ่มสต็อค
+            const isAuthorized = await verifyActionPin();
+            if (!isAuthorized) return;
+
+            const btn = document.getElementById('submitStockInBtn'); 
+            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
             const payload = { action: "addStockIn", month: currentSalesMonth, date: document.getElementById('stockInDate').value, qty: parseInt(qty), note: document.getElementById('stockInNote').value };
             try {
                 await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
