@@ -589,7 +589,7 @@
             });
 
             let html = `
-                <div class="grid grid-cols-2 lg:grid-cols-${state.activeCategory === 'semidump' ? '6' : '5'} gap-4 mb-6">
+                <div class="grid grid-cols-2 ${state.activeCategory === 'semidump' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4 mb-6">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center items-start">
                         <div class="flex items-center space-x-2 mb-2"><div class="bg-purple-100 p-1.5 rounded-lg text-purple-600"><i data-lucide="map-pin" class="w-4 h-4"></i></div><p class="text-xs text-slate-500 font-bold uppercase">จำนวนเที่ยวรวม</p></div>
                         <p class="text-xl font-bold text-slate-800">${data.length} <span class="text-sm font-normal text-slate-500">เที่ยว</span></p>
@@ -620,10 +620,8 @@
                 <div class="space-y-6">
             `;
 
-            // --- ส่วนที่เพิ่มใหม่: ตารางสรุปน้ำหนักแยกตามเส้นทาง (เฉพาะรถเซมิดั๊ม) ---
             if (state.activeCategory === 'semidump' && data.length > 0) {
                 const routeSummary = data.reduce((acc, trip) => {
-                    // ใช้ ต้นทาง-ปลายทาง เป็นกุญแจในการจัดกลุ่ม
                     const routeKey = `${trip.origin}||${trip.dest}`;
                     if (!acc[routeKey]) {
                         acc[routeKey] = { origin: trip.origin, dest: trip.dest, totalWeight: 0, tripCount: 0 };
@@ -633,7 +631,6 @@
                     return acc;
                 }, {});
 
-                // เรียงลำดับจากน้ำหนักมากไปน้อย
                 const routeSummaryArray = Object.values(routeSummary).sort((a, b) => b.totalWeight - a.totalWeight);
 
                 let routeRows = '';
@@ -670,7 +667,6 @@
                     </div>
                 `;
             }
-            // --- จบส่วนที่เพิ่มใหม่ ---
 
             const groupedTrips = data.reduce((acc, trip) => {
                 if (!acc[trip.plate]) acc[trip.plate] = [];
@@ -768,6 +764,8 @@
                         <td class="p-4 font-medium text-slate-800">${j.dest}</td>
                         <td class="p-4 text-right tabular-nums text-slate-600">${j.dist} กม.</td>
                         <td class="p-4 text-right tabular-nums font-bold text-rose-800">${formatCurrency(j.revenue)}</td>
+                        <td class="p-4 text-right tabular-nums text-orange-600">${formatCurrency(j.fuelCost || 0)}</td>
+                        <td class="p-4 text-right tabular-nums text-slate-600">${formatCurrency(j.driverFee || 0)}</td>
                         <td class="p-4 text-center space-x-2">
                             <button onclick="requestActionPin('openEditModal(\\'${j.id}\\', \\'jobs\\')')" class="text-slate-400 hover:text-rose-700 p-1"><i data-lucide="edit" class="w-4 h-4"></i></button>
                             <button onclick="requestActionPin('deleteData(\\'${j.id}\\', \\'deleteJob\\', \\'job\\')')" class="text-slate-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -775,18 +773,20 @@
                     </tr>
                 `;
             });
-            if(filteredJobs.length === 0) rows = '<tr><td colSpan="5" class="p-8 text-center text-slate-500">ไม่มีข้อมูลเส้นทาง กรุณาเพิ่มข้อมูลใหม่</td></tr>';
+            if(filteredJobs.length === 0) rows = '<tr><td colSpan="7" class="p-8 text-center text-slate-500">ไม่มีข้อมูลเส้นทาง กรุณาเพิ่มข้อมูลใหม่</td></tr>';
 
             html += `
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[600px] text-left border-collapse whitespace-nowrap table-fixed">
+                        <table class="w-full min-w-[800px] text-left border-collapse whitespace-nowrap table-fixed">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-500 text-sm uppercase tracking-wider border-b border-slate-200">
-                                    <th class="p-4 font-semibold w-1/3">ต้นทาง</th>
-                                    <th class="p-4 font-semibold w-1/3">ปลายทาง</th>
-                                    <th class="p-4 font-semibold text-right w-32">ระยะทาง</th>
-                                    <th class="p-4 font-semibold text-right w-40">เรทค่าเที่ยว</th>
+                                    <th class="p-4 font-semibold w-40">ต้นทาง</th>
+                                    <th class="p-4 font-semibold w-40">ปลายทาง</th>
+                                    <th class="p-4 font-semibold text-right w-24">ระยะทาง</th>
+                                    <th class="p-4 font-semibold text-right w-32">เรทค่าเที่ยว</th>
+                                    <th class="p-4 font-semibold text-right w-24">ค่าน้ำมัน</th>
+                                    <th class="p-4 font-semibold text-right w-24">เบี้ยเลี้ยง</th>
                                     <th class="p-4 font-semibold text-center w-24">จัดการ</th>
                                 </tr>
                             </thead>
@@ -946,14 +946,14 @@
             const ctxBar = document.getElementById('chartBar').getContext('2d');
             state.charts.bar = new Chart(ctxBar, {
                 type: 'bar',
-                data: { labels: labels, datasets: [ { label: 'กำไร', data: profit, backgroundColor: '#10b981', borderRadius: 4 }, { label: 'ค่าน้ำมัน', data: fuel, backgroundColor: '#f97316', borderRadius: 4 } ] }, // เปลี่ยนค่าน้ำมันในกราฟแท่งเป็นสีส้ม
+                data: { labels: labels, datasets: [ { label: 'กำไร', data: profit, backgroundColor: '#10b981', borderRadius: 4 }, { label: 'ค่าน้ำมัน', data: fuel, backgroundColor: '#f97316', borderRadius: 4 } ] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
             });
 
             const ctxLine = document.getElementById('chartLine').getContext('2d');
             state.charts.line = new Chart(ctxLine, {
                 type: 'line',
-                data: { labels: labels, datasets: [ { label: 'ยอดรับ', data: revenue, borderColor: '#9f1239', backgroundColor: '#9f1239', tension: 0.3, borderWidth: 3 }, { label: 'กำไร', data: profit, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, borderWidth: 3 } ] }, // เปลี่ยนยอดรับเป็นสีเลือดหมู (rose-800)
+                data: { labels: labels, datasets: [ { label: 'ยอดรับ', data: revenue, borderColor: '#9f1239', backgroundColor: '#9f1239', tension: 0.3, borderWidth: 3 }, { label: 'กำไร', data: profit, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, borderWidth: 3 } ] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
             });
         }
@@ -972,7 +972,7 @@
                 let plateOptions = '';
                 const filteredVehicles = state.vehicles.filter(v => (v.category || 'flatbed') === state.activeCategory);
                 filteredVehicles.forEach(v => {
-                    plateOptions += `<option value="${v.plate}" ${state.formData.plate === v.plate ? 'selected' : ''}>${v.plate} (${v.driver})</option>`;
+                    plateOptions += `<option value="${v.plate} (${v.driver})"></option>`;
                 });
                 
                 let defaultDate = state.formData.date || getToday();
@@ -990,10 +990,10 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ทะเบียนรถ</label>
-                            <select required id="f_plate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 bg-white">
-                                <option value="" disabled ${!state.formData.plate ? 'selected' : ''}>เลือกทะเบียนรถ</option>
+                            <input required type="text" id="f_plate" list="plate_list" value="${state.formData.plate || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 bg-white" placeholder="เลือกหรือพิมพ์ทะเบียนรถ" autocomplete="off" />
+                            <datalist id="plate_list">
                                 ${plateOptions}
-                            </select>
+                            </datalist>
                         </div>
                     </div>
                 `;
@@ -1002,12 +1002,12 @@
                     let jobOptions = '';
                     const filteredJobs = state.jobs.filter(j => (j.category || 'flatbed') === state.activeCategory);
                     filteredJobs.forEach(j => {
-                        jobOptions += `<option value="${j.id}" data-ori="${j.origin}" data-dest="${j.dest}" data-dist="${j.dist}" data-rev="${j.revenue}">${j.origin} ➔ ${j.dest} (${formatCurrency(j.revenue)})</option>`;
+                        jobOptions += `<option value="${j.id}" data-ori="${j.origin}" data-dest="${j.dest}" data-dist="${j.dist}" data-rev="${j.revenue}" data-fuelrate="${j.fuelRate||''}" data-fuelprice="${j.currentFuelPrice||''}" data-fuelcost="${j.fuelCost||0}" data-driverfee="${j.driverFee||0}">${j.origin} ➔ ${j.dest} (${formatCurrency(j.revenue)})</option>`;
                     });
 
                     html += `
                         <div class="col-span-2 mt-4">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">📍 ดึงข้อมูลเส้นทางมาตรฐาน (ตัวช่วย)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">📍 เลือกเส้นทางมาตรฐาน (ดึงข้อมูลค่าเที่ยว/ค่าน้ำมันอัตโนมัติ)</label>
                             <select id="job_select" onchange="applyJobSelection()" class="w-full border border-rose-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 bg-rose-50 text-rose-900 font-semibold shadow-sm">
                                 <option value="">-- พิมพ์เอง หรือเลือกจากฐานข้อมูล --</option>
                                 ${jobOptions}
@@ -1043,15 +1043,23 @@
                         </div>
                         
                         ${state.activeCategory === 'semidump' ? `
-                        <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
+                        <div class="col-span-2 bg-amber-50 text-amber-800 p-3 rounded-lg text-sm my-4 border border-amber-200">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1 mb-0.5"></i>
+                            <b>หมายเหตุ:</b> ค่าน้ำมันและค่าเบี้ยเลี้ยงคนขับ จะถูกดึงและคำนวณอัตโนมัติจาก <b>"เส้นทางมาตรฐาน"</b> ที่เลือกไว้ด้านบน
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="col-span-2">
                                 <label class="block text-sm font-bold text-rose-800 mb-1">⚖️ น้ำหนักบรรทุกของ (ตัน)</label>
                                 <input required type="number" step="0.01" id="f_weight" value="${state.formData.weight || ''}" class="w-full border border-rose-300 bg-rose-50/50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 font-bold text-rose-900" placeholder="ระบุน้ำหนักเป็นตัน เช่น 30.5" />
                             </div>
                         </div>
-                        ` : ''}
-
-                        <div class="grid grid-cols-2 gap-4 ${state.activeCategory === 'semidump' ? '' : 'mt-4'}">
+                        <!-- ซ่อนฟิลด์เหล่านี้ในหน้า UI ของรถเซมิดั๊ม แต่ระบบยังต้องใช้ค่าเพื่อคำนวณกำไร -->
+                        <input type="hidden" id="f_fuelRate" value="${state.formData.fuelRate || ''}" />
+                        <input type="hidden" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || ''}" />
+                        <input type="hidden" id="f_fuelCost" value="${state.formData.fuelCost || ''}" />
+                        <input type="hidden" id="f_driverFee" value="${state.formData.driverFee || ''}" />
+                        ` : `
+                        <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
                                 <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 3.5" />
@@ -1071,6 +1079,7 @@
                                 <input required type="number" id="f_driverFee" value="${state.formData.driverFee || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" />
                             </div>
                         </div>
+                        `}
                     `;
                 } else if (state.activeTab === 'refuels') {
                     html += `
@@ -1110,11 +1119,32 @@
                                     <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>คำนวณ
                                 </button>
                             </label>
-                            <input required type="number" id="f_dist" value="${state.formData.dist || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 120" />
+                            <input required type="number" id="f_dist" value="${state.formData.dist || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 120" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">เรทค่าเที่ยว (ยอดรับ)</label>
                             <input required type="number" id="f_revenue" value="${state.formData.revenue || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 6600" />
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
+                            <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 3.5" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
+                            <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 32.50" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมันประเมิน (ไป-กลับ)</label>
+                            <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost || ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเบี้ยเลี้ยงคนขับ</label>
+                            <input required type="number" id="f_driverFee" value="${state.formData.driverFee || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" />
                         </div>
                     </div>
                 `;
@@ -1177,16 +1207,30 @@
                 document.getElementById('f_dest').value = opt.getAttribute('data-dest');
                 document.getElementById('f_dist').value = opt.getAttribute('data-dist');
                 document.getElementById('f_revenue').value = opt.getAttribute('data-rev');
+                
+                // ดึงค่าใหม่ที่ซ่อนไว้มาใส่ฟอร์มให้ด้วย
+                if(document.getElementById('f_fuelRate')) document.getElementById('f_fuelRate').value = opt.getAttribute('data-fuelrate');
+                if(document.getElementById('f_currentFuelPrice')) document.getElementById('f_currentFuelPrice').value = opt.getAttribute('data-fuelprice');
+                if(document.getElementById('f_fuelCost')) document.getElementById('f_fuelCost').value = opt.getAttribute('data-fuelcost');
+                if(document.getElementById('f_driverFee')) document.getElementById('f_driverFee').value = opt.getAttribute('data-driverfee');
+
                 calcFuelCost(); 
             }
         };
 
         window.calcFuelCost = () => {
-            const dist = parseFloat(document.getElementById('f_dist').value);
-            const rate = parseFloat(document.getElementById('f_fuelRate').value);
-            const price = parseFloat(document.getElementById('f_currentFuelPrice').value);
-            if (!isNaN(dist) && !isNaN(rate) && !isNaN(price) && rate > 0) {
-                document.getElementById('f_fuelCost').value = (((dist * 2) / rate) * price).toFixed(2);
+            const distInput = document.getElementById('f_dist');
+            const rateInput = document.getElementById('f_fuelRate');
+            const priceInput = document.getElementById('f_currentFuelPrice');
+            const costInput = document.getElementById('f_fuelCost');
+
+            if(distInput && rateInput && priceInput && costInput) {
+                const dist = parseFloat(distInput.value);
+                const rate = parseFloat(rateInput.value);
+                const price = parseFloat(priceInput.value);
+                if (!isNaN(dist) && !isNaN(rate) && !isNaN(price) && rate > 0) {
+                    costInput.value = (((dist * 2) / rate) * price).toFixed(2);
+                }
             }
         };
 
@@ -1250,7 +1294,13 @@
 
             if (state.activeTab === 'trips' || state.activeTab === 'refuels') {
                 newData.date = formatToThaiShort(getVal('f_date'));
-                newData.plate = getVal('f_plate');
+                
+                // ดึงค่าจากช่องทะเบียนรถ แล้วตัดเอาเฉพาะส่วนทะเบียน (ซ่อนชื่อคนขับก่อนส่งเข้าฐานข้อมูล)
+                let rawPlate = getVal('f_plate') || '';
+                if (rawPlate.includes(' (')) {
+                    rawPlate = rawPlate.split(' (')[0].trim();
+                }
+                newData.plate = rawPlate;
             }
 
             let actionType = '';
@@ -1258,9 +1308,12 @@
                 actionType = state.editMode ? 'editTrip' : 'addTrip';
                 Object.assign(newData, {
                     origin: getVal('f_origin'), dest: getVal('f_dest'),
-                    dist: Number(getVal('f_dist')), fuelRate: Number(getVal('f_fuelRate')),
-                    currentFuelPrice: Number(getVal('f_currentFuelPrice')), fuelCost: Number(getVal('f_fuelCost')),
-                    driverFee: Number(getVal('f_driverFee')), revenue: Number(getVal('f_revenue')),
+                    dist: Number(getVal('f_dist')), 
+                    fuelRate: Number(getVal('f_fuelRate') || 0), 
+                    currentFuelPrice: Number(getVal('f_currentFuelPrice') || 0), 
+                    fuelCost: Number(getVal('f_fuelCost') || 0),
+                    driverFee: Number(getVal('f_driverFee') || 0), 
+                    revenue: Number(getVal('f_revenue')),
                     weight: state.activeCategory === 'semidump' ? Number(getVal('f_weight') || 0) : 0
                 });
                 newData.profit = newData.revenue - newData.fuelCost - newData.driverFee;
@@ -1281,7 +1334,11 @@
                 actionType = state.editMode ? 'editJob' : 'addJob';
                 Object.assign(newData, { 
                     origin: getVal('f_origin'), dest: getVal('f_dest'), 
-                    dist: Number(getVal('f_dist')), revenue: Number(getVal('f_revenue')) 
+                    dist: Number(getVal('f_dist')), revenue: Number(getVal('f_revenue')),
+                    fuelRate: Number(getVal('f_fuelRate') || 0), 
+                    currentFuelPrice: Number(getVal('f_currentFuelPrice') || 0), 
+                    fuelCost: Number(getVal('f_fuelCost') || 0),
+                    driverFee: Number(getVal('f_driverFee') || 0) 
                 });
                 if(state.editMode) state.jobs = state.jobs.map(j => j.id === newData.id ? newData : j);
                 else state.jobs.unshift(newData);
