@@ -1039,6 +1039,11 @@
                     defaultDate = `${y}-${String(state.filterMonth).padStart(2,'0')}-${day}`;
                 }
 
+                const defFuelRate = state.formData.fuelRate || 2.5;
+                const defFuelPrice = state.formData.currentFuelPrice || 36.0;
+                const defFuelCost = state.formData.fuelCost !== undefined ? state.formData.fuelCost : '';
+                const defDriverFee = state.formData.driverFee !== undefined ? state.formData.driverFee : '';
+
                 html += `
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -1111,29 +1116,29 @@
                             </div>
                         </div>
                         <!-- ซ่อนฟิลด์เหล่านี้ในหน้า UI ของรถเซมิดั๊ม แต่ระบบยังต้องใช้ค่าเพื่อคำนวณกำไร -->
-                        <input type="hidden" id="f_fuelRate" value="${state.formData.fuelRate || 2.5}" />
-                        <input type="hidden" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || 36.0}" />
-                        <input type="hidden" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" />
-                        <input type="hidden" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" />
+                        <input type="hidden" id="f_fuelRate" value="${defFuelRate}" />
+                        <input type="hidden" id="f_currentFuelPrice" value="${defFuelPrice}" />
+                        <input type="hidden" id="f_fuelCost" value="${defFuelCost}" />
+                        <input type="hidden" id="f_driverFee" value="${defDriverFee}" />
                         ` : `
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || 2.5}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 3.5" />
+                                <input required type="number" step="0.01" id="f_fuelRate" value="${defFuelRate}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 2.5" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || 36.0}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 32.50" />
+                                <input required type="number" step="0.01" id="f_currentFuelPrice" value="${defFuelPrice}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 36.00" />
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมัน (จ่าย) <span class="text-xs text-slate-400 font-normal ml-1">คำนวณไป-กลับอัตโนมัติ</span></label>
-                                <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+                                <input required type="number" step="0.01" id="f_fuelCost" value="${defFuelCost}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเที่ยวคนขับ</label>
-                                <input required type="number" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" />
+                                <input required type="number" id="f_driverFee" value="${defDriverFee}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" />
                             </div>
                         </div>
                         `}
@@ -1154,6 +1159,11 @@
                     `;
                 }
             } else if (state.activeTab === 'jobs') {
+                const defFuelRate = state.formData.fuelRate || 2.5;
+                const defFuelPrice = state.formData.currentFuelPrice || 36.0;
+                const defFuelCost = state.formData.fuelCost !== undefined ? state.formData.fuelCost : '';
+                const defDriverFee = state.formData.driverFee !== undefined ? state.formData.driverFee : '';
+
                 html += `
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-slate-700 mb-2 flex justify-between items-center">
@@ -1169,42 +1179,26 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between items-center">
-                                    <span>ระยะทาง (กม.)</span>
-                                    <button type="button" onclick="autoCalcDistance()" id="btn-calc-dist" class="text-rose-800 hover:text-rose-900 text-xs font-bold flex items-center">
-                                        <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>คำนวณ
-                                    </button>
-                                </label>
-                                <input required type="number" id="f_dist" value="${state.formData.dist || ''}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 120" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">เรทค่าเที่ยว (ยอดรับ)</label>
-                                <input required type="number" id="f_revenue" value="${state.formData.revenue || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 6600" />
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
+                            <input required type="number" step="0.01" id="f_fuelRate" value="${defFuelRate}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 2.5" />
                         </div>
-                        
-                        <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || 2.5}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 3.5" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || 36.0}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 32.50" />
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
+                            <input required type="number" step="0.01" id="f_currentFuelPrice" value="${defFuelPrice}" oninput="calcFuelCost()" onkeyup="calcFuelCost()" onchange="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 36.00" />
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมันประเมิน (ไป-กลับ)</label>
-                                <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเที่ยวคนขับ</label>
-                                <input required type="number" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" />
-                            </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมันประเมิน (ไป-กลับ)</label>
+                            <input required type="number" step="0.01" id="f_fuelCost" value="${defFuelCost}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
                         </div>
-                    `;
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเที่ยวคนขับ</label>
+                            <input required type="number" id="f_driverFee" value="${defDriverFee}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" />
+                        </div>
+                    </div>
+                `;
             } else {
                 html += `
                     <div>
@@ -1264,27 +1258,22 @@
             const sel = document.getElementById('job_select');
             const opt = sel.options[sel.selectedIndex];
             if(opt && opt.value) {
-                document.getElementById('f_origin').value = opt.getAttribute('data-ori');
-                document.getElementById('f_dest').value = opt.getAttribute('data-dest');
-                document.getElementById('f_dist').value = opt.getAttribute('data-dist');
-                document.getElementById('f_revenue').value = opt.getAttribute('data-rev');
+                document.getElementById('f_origin').value = opt.getAttribute('data-ori') || '';
+                document.getElementById('f_dest').value = opt.getAttribute('data-dest') || '';
+                document.getElementById('f_dist').value = opt.getAttribute('data-dist') || '';
+                document.getElementById('f_revenue').value = opt.getAttribute('data-rev') || '';
                 
-                // ดึงค่าใหม่ที่ซ่อนไว้มาใส่ฟอร์มให้ด้วย
                 if(document.getElementById('f_fuelRate')) {
-                    const rate = opt.getAttribute('data-fuelrate');
-                    document.getElementById('f_fuelRate').value = rate > 0 ? rate : 2.5;
+                    const rate = parseFloat(opt.getAttribute('data-fuelrate'));
+                    document.getElementById('f_fuelRate').value = (!isNaN(rate) && rate > 0) ? rate : 2.5;
                 }
                 if(document.getElementById('f_currentFuelPrice')) {
-                    const price = opt.getAttribute('data-fuelprice');
-                    document.getElementById('f_currentFuelPrice').value = price > 0 ? price : 36.0;
-                }
-                if(document.getElementById('f_fuelCost')) {
-                    const cost = opt.getAttribute('data-fuelcost');
-                    if (cost > 0) document.getElementById('f_fuelCost').value = cost;
+                    const price = parseFloat(opt.getAttribute('data-fuelprice'));
+                    document.getElementById('f_currentFuelPrice').value = (!isNaN(price) && price > 0) ? price : 36.0;
                 }
                 if(document.getElementById('f_driverFee')) {
-                    const fee = opt.getAttribute('data-driverfee');
-                    if (fee > 0) document.getElementById('f_driverFee').value = fee;
+                    const fee = parseFloat(opt.getAttribute('data-driverfee'));
+                    document.getElementById('f_driverFee').value = !isNaN(fee) ? fee : 0;
                 }
 
                 calcFuelCost(); 
