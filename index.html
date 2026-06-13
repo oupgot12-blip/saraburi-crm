@@ -1099,33 +1099,33 @@
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="col-span-2">
                                 <label class="block text-sm font-bold text-rose-800 mb-1">⚖️ น้ำหนักบรรทุกของ (ตัน)</label>
-                                <input required type="number" step="0.01" id="f_weight" value="${state.formData.weight || ''}" class="w-full border border-rose-300 bg-rose-50/50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 font-bold text-rose-900" placeholder="ระบุน้ำหนักเป็นตัน เช่น 30.5" />
+                                <input required type="number" step="0.01" id="f_weight" value="${state.formData.weight !== undefined ? state.formData.weight : ''}" class="w-full border border-rose-300 bg-rose-50/50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800 font-bold text-rose-900" placeholder="ระบุน้ำหนักเป็นตัน เช่น 30.5" />
                             </div>
                         </div>
                         <!-- ซ่อนฟิลด์เหล่านี้ในหน้า UI ของรถเซมิดั๊ม แต่ระบบยังต้องใช้ค่าเพื่อคำนวณกำไร -->
-                        <input type="hidden" id="f_fuelRate" value="${state.formData.fuelRate || ''}" />
-                        <input type="hidden" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || ''}" />
-                        <input type="hidden" id="f_fuelCost" value="${state.formData.fuelCost || ''}" />
-                        <input type="hidden" id="f_driverFee" value="${state.formData.driverFee || ''}" />
+                        <input type="hidden" id="f_fuelRate" value="${state.formData.fuelRate !== undefined ? state.formData.fuelRate : ''}" />
+                        <input type="hidden" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice !== undefined ? state.formData.currentFuelPrice : ''}" />
+                        <input type="hidden" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" />
+                        <input type="hidden" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" />
                         ` : `
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 3.5" />
+                                <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate !== undefined ? state.formData.fuelRate : ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 3.5" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
-                                <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 32.50" />
+                                <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice !== undefined ? state.formData.currentFuelPrice : ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 32.50" />
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมัน (จ่าย) <span class="text-xs text-slate-400 font-normal ml-1">คำนวณไป-กลับอัตโนมัติ</span></label>
-                                <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost || ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+                                <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเที่ยวคนขับ</label>
-                                <input required type="number" id="f_driverFee" value="${state.formData.driverFee || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" />
+                                <input required type="number" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-800" />
                             </div>
                         </div>
                         `}
@@ -1179,21 +1179,21 @@
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">อัตราสิ้นเปลือง (กม./ลิตร)</label>
-                            <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 3.5" />
+                            <input required type="number" step="0.01" id="f_fuelRate" value="${state.formData.fuelRate !== undefined ? state.formData.fuelRate : ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 3.5" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ราคาน้ำมัน (บาท/ลิตร)</label>
-                            <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 32.50" />
+                            <input required type="number" step="0.01" id="f_currentFuelPrice" value="${state.formData.currentFuelPrice !== undefined ? state.formData.currentFuelPrice : ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" placeholder="เช่น 32.50" />
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ค่าน้ำมันประเมิน (ไป-กลับ)</label>
-                            <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost || ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
+                            <input required type="number" step="0.01" id="f_fuelCost" value="${state.formData.fuelCost !== undefined ? state.formData.fuelCost : ''}" class="w-full border border-orange-300 bg-orange-50/50 text-orange-800 font-medium rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ค่าเที่ยวคนขับ</label>
-                            <input required type="number" id="f_driverFee" value="${state.formData.driverFee || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" />
+                            <input required type="number" id="f_driverFee" value="${state.formData.driverFee !== undefined ? state.formData.driverFee : ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-rose-800 outline-none" />
                         </div>
                     </div>
                 `;
@@ -1228,8 +1228,11 @@
             document.getElementById('btn-cancel-form').onclick = () => modal.classList.add('hidden');
             form.onsubmit = submitData;
             
-            if(state.activeTab === 'refuels') calcTotalRefuel(); 
-            if(state.activeTab === 'jobs' || state.activeTab === 'trips') calcFuelCost(); 
+            // ใช้ setTimeout เพื่อให้แน่ใจว่าฟอร์มเรนเดอร์ใน DOM เรียบร้อยก่อนสั่งคำนวณอัตโนมัติ
+            setTimeout(() => {
+                if(state.activeTab === 'refuels') calcTotalRefuel(); 
+                if(state.activeTab === 'jobs' || state.activeTab === 'trips') calcFuelCost(); 
+            }, 100);
         }
 
         document.getElementById('btn-close-modal').onclick = () => document.getElementById('main-modal').classList.add('hidden');
@@ -1278,6 +1281,7 @@
                 const dist = parseFloat(distInput.value);
                 const rate = parseFloat(rateInput.value);
                 const price = parseFloat(priceInput.value);
+                
                 if (!isNaN(dist) && !isNaN(rate) && !isNaN(price) && rate > 0) {
                     costInput.value = (((dist * 2) / rate) * price).toFixed(2);
                 }
