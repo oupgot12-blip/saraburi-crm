@@ -228,6 +228,25 @@
             return y + '-' + m + '-' + d;
         };
 
+        // ฟังก์ชันช่วยแปลงวันที่เพื่อใช้จัดเรียงลำดับ
+        const parseDateForSort = (dStr) => {
+            if (!dStr) return 0;
+            const str = String(dStr);
+            if (str.includes('-')) {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) return d.getTime();
+            }
+            const parts = str.split('/');
+            if (parts.length === 3) {
+                let d = parseInt(parts[0], 10);
+                let m = parseInt(parts[1], 10) - 1;
+                let y = parseInt(parts[2], 10);
+                if (y > 2500) y -= 543;
+                return new Date(y, m, d).getTime();
+            }
+            return 0;
+        };
+
         // --- ระบบความปลอดภัย PIN ---
         window.pendingActionFunc = null;
 
@@ -590,6 +609,9 @@
                 return;
             }
 
+            // เรียงลำดับข้อมูลตามวันที่ (จากเก่าไปใหม่)
+            data.sort((a, b) => parseDateForSort(a.date) - parseDateForSort(b.date));
+
             let grandTotalDist = 0, grandTotalRevenue = 0, grandTotalFuel = 0, grandTotalProfit = 0, grandTotalWeight = 0;
             data.forEach(t => {
                 grandTotalDist += Number(t.dist || 0); grandTotalRevenue += Number(t.revenue || 0);
@@ -861,6 +883,9 @@
                 container.innerHTML = '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center text-slate-500">ไม่มีประวัติการเติมน้ำมันในช่วงเวลานี้</div>';
                 return;
             }
+
+            // เรียงลำดับข้อมูลตามวันที่ (จากเก่าไปใหม่)
+            data.sort((a, b) => parseDateForSort(a.date) - parseDateForSort(b.date));
 
             let grandTotalLiters = 0; let grandTotalCost = 0;
             data.forEach(r => { grandTotalLiters += Number(r.liters || 0); grandTotalCost += Number(r.total || 0); });
