@@ -87,6 +87,10 @@
                 <span id="page-subtitle" class="ml-2 text-rose-800 text-lg font-medium hidden"></span>
             </h2>
             <div class="flex space-x-3">
+                <button onclick="initApp()" class="flex items-center space-x-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-sm font-medium">
+                    <i data-lucide="refresh-cw" class="h-4 w-4 text-slate-500"></i>
+                    <span>รีเฟรชข้อมูล</span>
+                </button>
                 <button id="btn-add-new" class="hidden items-center space-x-2 px-4 py-2 bg-rose-800 text-white rounded-lg hover:bg-rose-900 transition-colors shadow-sm font-medium">
                     <i data-lucide="plus-circle" class="h-4 w-4"></i>
                     <span>เพิ่มข้อมูลใหม่</span>
@@ -481,7 +485,12 @@
                         if (parts.length === 3) {
                             const d = parseInt(parts[0], 10);
                             const m = parseInt(parts[1], 10);
-                            const y = parseInt(parts[2], 10);
+                            let y = parseInt(parts[2], 10);
+                            
+                            // ปรับแก้กรณี Google Sheets ส่งข้อมูลกลับมาเป็นปี ค.ศ. (เช่น 2026) 
+                            // ให้แปลงกลับเป็น พ.ศ. เสมอก่อนเข้าเงื่อนไข
+                            if (y < 2500) y += 543;
+
                             const p = d <= 15 ? 1 : 2;
                             matchPeriod = (y === state.filterYear && m === state.filterMonth && p === state.filterPeriod);
                         } else { matchPeriod = false; }
@@ -1159,7 +1168,7 @@
                                     <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>คำนวณ
                                 </button>
                             </label>
-                            <input required type="number" id="f_dist" value="${state.formData.dist || ''}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 120" />
+                            <input required type="number" id="f_dist" value="${state.formData.dist || ''}" oninput="calcFuelCost()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-rose-800" placeholder="เช่น 120" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">เรทค่าเที่ยว (ยอดรับ)</label>
@@ -1220,6 +1229,7 @@
             form.onsubmit = submitData;
             
             if(state.activeTab === 'refuels') calcTotalRefuel(); 
+            if(state.activeTab === 'jobs' || state.activeTab === 'trips') calcFuelCost(); 
         }
 
         document.getElementById('btn-close-modal').onclick = () => document.getElementById('main-modal').classList.add('hidden');
@@ -1500,7 +1510,8 @@
 
             try {
                 document.getElementById('loading-spinner').classList.remove('hidden');
-                const res = await fetch(GAS_WEB_APP_URL);
+                // เพิ่ม timestamp ต่อท้าย URL ป้องกันปัญหา Browser Cache จำข้อมูลเก่า
+                const res = await fetch(GAS_WEB_APP_URL + "?t=" + new Date().getTime());
                 const data = await res.json();
                 if(data.status === 'success') {
                     state.trips = data.trips || [];
